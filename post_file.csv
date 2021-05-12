@@ -1,3 +1,12 @@
-user name,id_post,txt,date,production_time,comments,like
-arezoo,1,arezoo is docter,05-05-2021,15:46:55,,
-arezoo,2,arezoo is a nice docter....,05-05-2021,15:47:23,nice duater,
+user_name,id_post,txt,date,production_time,comments,like,user_log,date_comment,time_comment
+arezoo,2,arezoo full nice,12-05-2021,03:24:54,love to your post,1.0,sasi,12-05-2021,17:27:55
+arezoo,3,jsjjsjjs,12-05-2021,20:36:54,,,,,
+arezoo,4,sjjsjsjjjsj,12-05-2021,20:37:11,,,,,
+arezoo,5,sjjsjjsbdttsysssssssssss,12-05-2021,20:37:24,,,,,
+arezoo,6,ajujuuuuuuuuuuuuuuuuu,12-05-2021,20:37:37,,,,,
+arezoo,7,jasayyyyyyyyyyyyyyyyyyyy,12-05-2021,20:38:35,,,,,
+arezoo,8,are you fine arezoo?,12-05-2021,20:46:13,,,,,
+arezoo,9,justttttt nice!!!!!!!!!,12-05-2021,20:47:21,,,,,
+arezoo,10,whyyyyyy,12-05-2021,20:51:04,,,,,
+arezoo,11,whyyyyyyyyyyyy,12-05-2021,20:52:00,,,,,
+arezoo,12,my name is arezoo,12-05-2021,21:44:50,,,,,
