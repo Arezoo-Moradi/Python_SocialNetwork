@@ -1,12 +1,12 @@
 import module_show_file
 from User import User
 from Profile import Profile
-import post
+from post import Post
 import csv
 import Access_OwnInfo
 import Access_AnotherInfo
 
-def access_owninfo(user_name):
+def access_owninfo(user):
 
     while True:
         print('>>>>>>>>>>>>>>>>>>>>> Accesses to my own information of pages  >>>>>>>>>>>>>>>>>>>>>')
@@ -20,16 +20,27 @@ def access_owninfo(user_name):
             if choose == "1":
                 print('>>>>>>>>>>>>>Creat a post')
                 txt = input('Enter text of the post:')
-                post.Post.creat_post(user_name, txt)
+                user.post = Post.creat_post(user.user_name, txt)
             elif choose == "2":
                 print('>>>>>>>>>>>>>Changed a post')
-                post.Post.change_post(user_name)
+                print('////////////////////////')
+                module_show_file.show_post_file(user.user_name)
+                print('////////////////////////')
+                print('which post do you want to changed? please select the id of post?')
+                id = input("Enter the id of post:")
+                new_txt = input("Please enter the new text:")
+                user.post = Post.change_post(user, new_txt, id)
             elif choose == "3":
                 print('>>>>>>>>>>>>>Deleted a post')
-                post.Post.delete_post(user_name)
+                print('////////////////////////')
+                module_show_file.show_post_file(user.user_name)
+                print('////////////////////////')
+                print('which post do you want to deleted? please select the id of post?')
+                id = input("Enter the id of post:")
+                user.post = Post.delete_post(user, id)
             elif choose == "4":
                 print('>>>>>>>>>>>>>>>>Show Post')
-                post.Post.show_mypost(user_name)
+                user.post = Post.show_my_post(user)
             elif choose == "5":
                 break
         elif choice == '2':
@@ -38,10 +49,10 @@ def access_owninfo(user_name):
             print('please choose a number between 1,2,3')
             choise2 = input('Enter the number:')
             if choise2 == '1':
-                User.menu_following()
+                user.menu_following()
             elif choise2 == '2':
                 print('>>>>>>>>>>>>>>>>>>>>>>Show following')
-                User.show_following()
+                user.show_following()
             elif choise2 == '3':
                 break
         elif choice == '3':
@@ -51,18 +62,38 @@ def access_owninfo(user_name):
             choise3 = input('Enter the number:')
             if choise3 == '1':
                 print('>>>>>>>>>>>>>>>creat a Profile')
-                Profile.creat_profile(user_name)
+                user.profile = Profile.creat_profile(user.user_name)
             elif choise3 == '2':
                 print('>>>>>>>>>>>>>>>Edit profile')
-                Profile.Edit_profile(user_name)
+                print('select Edited 1-email 2-phone 3-bio 4- Edited all value(Email/phone/bio)')
+                select = input('Enter your select:')
+                if select == '1':
+                    email = input('Enter new email:')
+                    user.profile = Profile.edit_profile(user, select, email, None, None)
+                elif select == '2':
+                    phone = input('Enter new phone:')
+                    user.profile = Profile.edit_profile(user, select, None, phone, None)
+                elif select == '3':
+                    bio = input('Enter new bio:')
+                    user.profile = Profile.edit_profile(user, select, None, None, bio)
+                elif select == '4':
+                    email = input('Enter new email:')
+                    phone = input('Enter new phone:')
+                    bio = input('Enter new bio:')
+                    user.profile = Profile.edit_profile(user, select, email, phone, bio)
+                else:
+                    print('your select is wrong!')
+
             elif choise3 == '3':
                 print('>>>>>>>>>>>>>>>show profile')
-                Profile.show_myprofile(user_name)
+                user.profile = Profile.show_my_profile(user)
             elif choise3 == '4':
                 break
         elif choice == '4':
-            user = User(user_name, password, None, True)
-            User.change_password(user)
+            # user = User(user_name, password, None, True)
+            # User.change_password(user)
+            user.change_password()
+
         elif choice == '5':
             break
         else:

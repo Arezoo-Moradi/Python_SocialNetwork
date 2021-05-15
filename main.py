@@ -26,7 +26,10 @@ while True:
         """--------------------------------------------------------------------------------------"""
         if choise1 == '1':
             print('>>>>>>>>>>>>>>>>>>>>Register')
-            person = User.register()
+            user_name = input("Enter User Name:").lower()
+            password = input("Enter Password:").lower()
+            confirm = input("Enter Password again:").lower()
+            person = User.register(user_name, password, confirm)
         elif choise1 == '2':
             print('>>>>>>>>>>>>>>>>>>>>>Log in')
             user_name = input('please enter your user_name:')
@@ -36,20 +39,19 @@ while True:
                 print("Enter your password wrong! Try again...")
             elif is_logged_in == True:
                 user = User(user_name, password, None, True)
-                user_name = user.user_name
                 print('Access to my pages and information select 1 >>>>>> ')
                 print('Access someone another page select 2 >>>>>>>>>>>>>>')
                 select = input('Enter your select:')
                 if select == '1':
-                    Access_OwnInfo.access_owninfo(user_name)
+                    Access_OwnInfo.access_owninfo(user)
                 elif select == '2':
-                    Access_AnotherInfo.access_anotherinfo(user_name)
+                    Access_AnotherInfo.access_anotherinfo(user)
                 else:
                     print('your choice is wrong!!')
                     continue
+
         """-----------------------------------------------------------------------------------------"""
     elif choise == '2':
-        user = User(user_name, password, None, True)
         User.logout(user)
     else:
         break

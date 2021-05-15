@@ -27,6 +27,66 @@ class User:
         self.password = password
         self.friends = friends
         self.login_flg = login_flg
+        self.profile = None
+        self.post = None
+
+
+    '''In this function, you can register and go to your page'''
+    @classmethod
+    def register(cls, user_name, password, confirm ):
+        count = 0
+        with open("User_Information.csv") as f_obj:
+            reader = csv.reader(f_obj)
+            for line in reader:
+                if user_name in line:
+                    print('This user name register before!')
+                    break
+                else:
+                    if password == confirm:
+                        password = confirm
+                        '''hashing your password'''
+                        pass_hash = User.hash_fn.hash(password)
+                        print("*****Welcome to your account that created*****")
+                    '''If enter your password wrong you can just try 3 times'''
+                    while password != confirm and count < 3:
+                        my_user = user_name
+                        print("your password is wrong try a gain!!")
+                        print('user_name:', my_user)
+                        confirm = input("verify password again:")
+                        if count == 2:
+                            print('try againes after 10 minute your access is lucked')
+                        if password == confirm:
+                            break
+                        count += 1
+
+                    '''Save Information of users in User_Information file'''
+                    with open('User_Information.csv', 'a', newline='') as user_data:
+                        fields_name = ['user_name', 'password']
+                        csv_writer = csv.DictWriter(user_data, fieldnames=fields_name)
+                        if Path('User_Information.csv').stat().st_size == 0:
+                            csv_writer.writeheader()
+                        csv_writer.writerow({'user_name': user_name, 'password': pass_hash})
+
+                    user = cls(user_name, password, None, None)
+                    cls.user_list.append(user)
+                    return user
+
+    ''' In this function,you can log in to your page'''
+    @staticmethod
+    def login(user_name, password):
+        '''check the user name or password is exist'''
+        with open("User_Information.csv", 'r') as user_file:
+            reader = csv.reader(user_file)
+            for row in reader:
+                if user_name == row[0]:
+                    if password == User.hash_fn.unhash(row[1]):
+                        User.login_flg = True
+                        print("welcome to your page...")
+                        return True
+                        break
+                    else:
+                        User.login_flg = False
+                        return False
 
     '''In this function,you can log out to your page'''
     def logout(self):
@@ -56,32 +116,24 @@ class User:
                 location += 1
 
     '''In this function, you can follow your friends '''
-    @staticmethod
-    def following():
+    def following(self, user_name):
         try:
-            user_name = input("please enter user_name that you want to follow:")
-            obj_user_name = next(element for element in User.user_list if element.user_name == user_name)
-            User.friends_list.append(obj_user_name)
+            obj_user_name = next(element for element in self.user_list if element.user_name == user_name)
+            self.friends_list.append(obj_user_name)
+            with open('following_list.csv', 'a', newline='') as following_data:
+                fields_name = ['user_name']
+                csv_writer = csv.DictWriter(following_data, fieldnames=fields_name)
+                if Path('following_list.csv').stat().st_size == 0:
+                    csv_writer.writeheader()
+                csv_writer.writerow({'user_name': user_name})
         except:
             print('You have no desire to following anyone')
 
-        with open('following_list.csv', 'a', newline='') as following_data:
-            fields_name = ['user_name']
-            csv_writer = csv.DictWriter(following_data, fieldnames=fields_name)
-            if Path('following_list.csv').stat().st_size == 0:
-                csv_writer.writeheader()
-            csv_writer.writerow({'user_name': user_name})
-        return User.friends_list
+        return self.friends_list
 
     '''In this function, you can unfollow your friends '''
-    @staticmethod
-    def unfollow():
-        print('********* show your following ************')
-        module_show_file.following_list()
-        print('Who do you want to unfollow?')
-        person = input('Enter your user name:')
+    def unfollow(self, person):
         lines = list()
-
         with open('following_list.csv', 'r') as readFile:
             reader = csv.reader(readFile)
             for row in reader:
@@ -94,20 +146,24 @@ class User:
             writer = csv.writer(writeFile)
             writer.writerows(lines)
 
-    @staticmethod
-    def menu_following():
+    def menu_following(self):
         print("Suggested list of people you can follow: ")
         print('user_name:')
-        for i in User.user_list:
+        for i in self.user_list:
             print(f'{i.user_name}')
         while True:
             print('1- follow 2- unfollow 3-Exit :')
             follow = input('enter choose to follow or unfollow:')
             if follow == '1':
                 print('Who do you want to follow?')
-                User.following()
+                user_name = input("please enter user_name that you want to follow:")
+                self.following(user_name)
             elif follow == '2':
-                User.unfollow()
+                print('********* show your following ************')
+                module_show_file.following_list()
+                print('Who do you want to unfollow?')
+                person = input('Enter your user name:')
+                self.unfollow(person)
             elif follow == '3':
                 break
             continue
@@ -115,66 +171,4 @@ class User:
     @staticmethod
     def show_following():
         module_show_file.following_list()
-
-    '''In this function, you can register and go to your page'''
-    @staticmethod
-    def register():
-        count = 0
-        '''Enter your information of user from input'''
-        user_name = input("Enter User Name:").lower()
-        password = input("Enter Password:").lower()
-        confirm = input("Enter Password again:").lower()
-
-        if password == confirm:
-            password = confirm
-
-            '''hashing your password'''
-            pass_hash = User.hash_fn.hash(password)
-            #print("*****Welcome to your account that created*****")
-
-        '''If enter your password wrong you can just try 3 times'''
-        while password != confirm and count < 3:
-            my_user = user_name
-            print("your password is wrong try a gain!!")
-            print('user_name:', my_user)
-            confirm = input("verify password again:")
-            if count == 2:
-                print('try againes after 10 minute your access is lucked')
-            if password == confirm:
-                break
-            count += 1
-
-        '''Save Information of users in User_Information file'''
-        with open('User_Information.csv', 'a', newline='') as user_data:
-            fields_name = ['user_name', 'password']
-            csv_writer = csv.DictWriter(user_data, fieldnames=fields_name)
-            if Path('User_Information.csv').stat().st_size == 0:
-                csv_writer.writeheader()
-            if not 'user_name':
-                csv_writer.writerow({'user_name': user_name, 'password': pass_hash})
-                print("*****Welcome to your account that created*****")
-            else:
-                print('This user name is register before!')
-
-        user = User(user_name, password, None, None)
-        User.user_list.append(user)
-        return user
-
-    ''' In this function,you can log in to your page'''
-    @staticmethod
-    def login(user_name, password):
-        '''check the user name or password is exist'''
-        with open("User_Information.csv", 'r') as user_file:
-            reader = csv.reader(user_file)
-            for row in reader:
-                if user_name == row[0]:
-                    if password == User.hash_fn.unhash(row[1]):
-                        User.login_flg = True
-                        print("welcome to your page...")
-                        return True
-                        break
-                    else:
-                        User.login_flg = False
-                        return False
-
 

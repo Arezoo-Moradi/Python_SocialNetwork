@@ -1,12 +1,12 @@
 import module_show_file
 from User import User
 from Profile import Profile
-import post
+from post import Post
 import csv
 import Access_OwnInfo
 import Access_AnotherInfo
 
-def access_anotherinfo(user_name):
+def access_anotherinfo(user):
 
     while True:
         print('>>>>>>>>>>>>>>>>>>>>> Access someone another page  >>>>>>>>>>>>>>>>>>>>>')
@@ -19,13 +19,30 @@ def access_anotherinfo(user_name):
             module_show_file.show_userInfo()
             person = input('select person:')
             print('>>>>>>>>>>>>>>>See posts another person')
-            post.Post.show_post(user_name, person)
+            user.post = Post.show_post(user, person)
             print('Do you want to like or add comments?')
             print('Add like or comment select 1 else select 2 ......')
             select = input('Enter select:')
             if select == '1':
                 print('>>>>>>>>>>>>Add comment or like for post each other')
-                post.Post.access_post(user_name, person)
+                print('Add comment: select 1 >>>>>>>>')
+                print('Add like: select 2 >>>>>>>>>>')
+                select = input('Enter select:')
+                if select == '1':
+                    module_show_file.show_post_file(person)
+                    id = input('Enter id of post:')
+                    new_comments = input("Please enter the comment:")
+                    user.post = Post.access_post(user.user_name, person, select, id, new_comments)
+                elif select == '2':
+                    print('If you want to like post select 1 else select 2:')
+                    select1 = input('Enter your select:')
+                    if select1 == '1':
+                        module_show_file.show_post_file(person)
+                        id = input('Enter id of post:')
+                        user.post = Post.access_post(user.user_name, person,select, id, None)
+                    else:
+                        print('you dont like post!')
+
             else:
                 break
         elif select == '2':
@@ -33,7 +50,7 @@ def access_anotherinfo(user_name):
             module_show_file.show_userInfo()
             print('Whose profile do you want to see?')
             person = input('select person:')
-            Profile.show_profile(user_name, person)
+            user.profile = Profile.show_profile(user, person)
         elif select == '3':
             break
         else:

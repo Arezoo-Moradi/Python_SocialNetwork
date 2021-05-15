@@ -9,7 +9,7 @@ import pandas as pd
 
 def update_csv(file_path, value_to_update,updated_value):
     df = pd.read_csv(file_path)
-    df.replace(to_replace=value_to_update, value=updated_value, inplace=True)
+    df.replace(to_replace=value_to_update, value=updated_value)
     df.to_csv(file_path, mode='w')
 
 def Edit_profile(user_log):

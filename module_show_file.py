@@ -4,9 +4,11 @@ import csv
 def following_list():
     with open('following_list.csv', 'r') as following_data:
         reader = csv.reader(following_data)
-        print("user_name:")
         for row in reader:
-            print(row[0])
+            if row[0] == '':
+                continue
+            else:
+                print(row[0])
 
 def show_post_file(name):
     with open("post_file.csv", 'r') as post_file:

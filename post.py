@@ -25,145 +25,136 @@ class Post:
         """
 
         '''inherent attribute from User and Profile class and initialize'''
-        '''User.__init__(self, user_name, password, friends, log_in)
-        Profile.__init__(self, email, phone_number, bio)
-'''
+        User.__init__(self, user_name, password, friends, log_in)
+        #Profile.__init__(self, email, phone_number, bio)
+
         self.text = text
         self.date = date
         self.production_time = production_time
         self.comments = comments
         self.like = like
 
-
-
     '''In this function, you can creat your posts and add your pages '''
     @classmethod
     def creat_post(cls, name, txt):
         file_path = "post_file.csv"
-        df_post = pd.read_csv(file_path)
-        df_post_indexed = df_post.set_index("id_post", drop=True)
-        #todo txt delet shude
-        d = datetime.datetime.today()
-        date = d.strftime('%d-%m-%Y')
-        production_time = d.strftime("%H:%M:%S")
-        comments = None
-        like = None
+        try:
+            df_post = pd.read_csv(file_path)
+            df_post_indexed = df_post.set_index("id_post", drop=True)
+            d = datetime.datetime.today()
+            date = d.strftime('%d-%m-%Y')
+            production_time = d.strftime("%H:%M:%S")
+            comments = None
+            like = None
+            row_post = [
+                [name, df_post_indexed.index[-1] + 1, txt, date, production_time, comments, like]]
 
-        row_post = [
-            [name, df_post_indexed.index[-1] + 1, txt, date, production_time, comments, like]]
-
-        with open(file_path, 'a', newline='') as csv_post:
-            csv_writer = csv.writer(csv_post)
-            # writing the data row
-            csv_writer.writerows(row_post)
-        post = cls(txt, date, production_time, None, None)
+            with open(file_path, 'a', newline='') as csv_post:
+                csv_writer = csv.writer(csv_post)
+                # writing the data row
+                csv_writer.writerows(row_post)
+            post = cls(txt, date, production_time, None, None)
+        except Exception:
+            print("you have not this file please create a file with name post_file.csv and set first row with this items "
+                  "(user_name,id_post,txt,date,production_time,comments,like,user_log,date_comment,time_comment)")
         return post
 
     '''In this function, you can edit or delete your post that you want '''
-    def change_post(self, user_log):
-        module_show_file.show_post_file(user_log)
-        '''print('which post do you want to changed? please select the id of post?')
-        id = input("Please enter the id of post:")
-        #person = input('Enter the person that you want to changing his post:')
-        new_txt = input("Please enter the new text:")'''
+    def change_post(self, new_txt, id):
+        try:
+            post_changed = pd.read_csv('post_file.csv')
+            location = 0
+            with open("post_file.csv", 'r') as post_file:
+                reader = csv.DictReader(post_file)
+                for row in reader:
+                    if row['user_name'] == self.user_name and row['id_post'] == id:
+                        txt = new_txt
+                        print("Your txt is changed.")
+                        post_changed.loc[location, 'txt'] = txt
+                        post_changed.to_csv('post_file.csv', index=False)
+                    location += 1
+        except Exception:
+            print("you can not open this file and changed these value please check a file with name post_file.csv "
+                  "is exists and what happened!! ")
 
-        post_changed = pd.read_csv('post_file.csv')
-        location = 0
-        with open("post_file.csv", 'r') as post_file:
-            reader = csv.DictReader(post_file)
-            for row in reader:
-                #if user_log == person:
-                if row['user_name'] == user_log and row['id_post'] == id:
-                    txt = new_txt
-                    print("Your txt is changed.")
-                    post_changed.loc[location, 'txt'] = txt
-                    post_changed.to_csv('post_file.csv', index=False)
-                location += 1
-                '''else:
-                    print('you can not changed posts another person!!!')
-                    break'''
-
-    @staticmethod
-    def delete_post(user_log):
-        module_show_file.show_post_file(user_log)
-
-        lines = list()
-        id = input("Please enter the id of post, you want to delete:")
-        person = input('Enter the person that you want to delete his post:')
-        with open('post_file.csv', 'r') as readFile:
-            reader = csv.reader(readFile)
-            for row in reader:
-                lines.append(row)
-                for field in row:
-                    if user_log == person:
+    def delete_post(self, id):
+        try:
+            module_show_file.show_post_file(self.user_name)
+            lines = list()
+            with open('post_file.csv', 'r') as readFile:
+                reader = csv.reader(readFile)
+                for row in reader:
+                    lines.append(row)
+                    for field in row:
                         if field == id:
                             lines.remove(row)
                             print('remove your post!')
-                    else:
-                        print('you can not delete posts another person!!!')
 
-        with open('post_file.csv', 'w') as writeFile:
-            writer = csv.writer(writeFile)
-            writer.writerows(lines)
+            with open('post_file.csv', 'w') as writeFile:
+                writer = csv.writer(writeFile)
+                writer.writerows(lines)
+        except Exception:
+            print("you can not open this file and deleted these value please check a file with name post_file.csv "
+                  "is exists and what happened!! ")
 
-    @staticmethod
-    def add_comment(user_log, person):
-        module_show_file.show_post_file(person)
-        id = input('Enter id of post:')
-        new_comments = input("Please enter the comment:")
+    def add_comment(self, person, id, new_comments):
         d = datetime.datetime.today()
         date_comment = d.strftime('%d-%m-%Y')
         time_comment = d.strftime("%H:%M:%S")
-        add_com = pd.read_csv('post_file.csv')
-        location = 0
-        with open("post_file.csv", 'r') as post_file:
-            reader = csv.DictReader(post_file)
-            for row in reader:
-                if row['user_name'] == person and row['id_post'] == id:
-                    comments = new_comments
-                    print("Your comment is added.")
-                    add_com.loc[location, 'user_log'] = user_log
-                    add_com.loc[location, 'date_comment'] = date_comment
-                    add_com.loc[location, 'time_comment'] = time_comment
-                    add_com.loc[location, 'comments'] = comments
-                    add_com.to_csv('post_file.csv', index=False)
-                location += 1
+        try:
+            add_com = pd.read_csv('post_file.csv')
+            location = 0
+            with open("post_file.csv", 'r') as post_file:
+                reader = csv.DictReader(post_file)
+                for row in reader:
+                    if row['user_name'] == person and row['id_post'] == id:
+                        comments = new_comments
+                        print("Your comment is added.")
+                        add_com.loc[location, 'user_log'] = self.user_name
+                        add_com.loc[location, 'date_comment'] = date_comment
+                        add_com.loc[location, 'time_comment'] = time_comment
+                        add_com.loc[location, 'comments'] = comments
+                        add_com.to_csv('post_file.csv', index=False)
+                    location += 1
 
-    @staticmethod
-    def show_mypost(user_log):
-        print('show posts ')
-        with open("post_file.csv", 'r') as post_file:
-            reader = csv.DictReader(post_file)
-            print(f'<<<<<<<< {user_log} ----> logged and see my posts.')
-            for row in reader:
-                if row['user_name'] == user_log:
-                    print(f"user_name:{row['user_name']}, Id of post: {row['id_post']} , text: {row['txt']}"
-                          f" ,date: {row['date']} , production_time: {row['production_time']},"
-                          f" comments: {row['comments']} , like: {row['like']} ")
+        except Exception:
+            print("you can not open this file and add comment please check a file with name post_file.csv "
+                  "is exists and what happened!! ")
+
+    def show_my_post(self):
+        try:
+            with open("post_file.csv", 'r') as post_file:
+                reader = csv.DictReader(post_file)
+                print(f'<<<<<<<< {self.user_name} ----> logged and see my posts.')
+                for row in reader:
+                    if row['user_name'] == self.user_name:
+                        print(f"user_name:{row['user_name']}, Id of post: {row['id_post']} , text: {row['txt']}"
+                              f" ,date: {row['date']} , production_time: {row['production_time']},"
+                              f" comments: {row['comments']} , like: {row['like']} ")
+        except Exception:
+            print("you can not open this file and show these value please check a file with name post_file.csv "
+                  "is exists and what happened!! ")
 
     '''In this function, you can view and comment on each other's posts '''
-    @staticmethod
-    def show_post(user_log, person):
-        print('show posts ')
-        with open("post_file.csv", 'r') as post_file:
-            reader = csv.DictReader(post_file)
-            print(f'>>>>>>>>{user_log} ----> logged and see your posts ----> {person}')
-            for row in reader:
-                if row['user_name'] == person:
-                    print(f"user_name:{row['user_name']}, Id of post: {row['id_post']} , text: {row['txt']}"
-                          f" ,date: {row['date']} , production_time: {row['production_time']},"
-                          f" comments: {row['comments']} , like: {row['like']} ")
+    def show_post(self, person):
+        try:
+            with open("post_file.csv", 'r') as post_file:
+                reader = csv.DictReader(post_file)
+                print(f'>>>>>>>>{self.user_name} ----> logged and see your posts ----> {person}')
+                for row in reader:
+                    if row['user_name'] == person:
+                        print(f"user_name:{row['user_name']}, Id of post: {row['id_post']} , text: {row['txt']}"
+                              f" ,date: {row['date']} , production_time: {row['production_time']},"
+                              f" comments: {row['comments']} , like: {row['like']} ")
+        except Exception:
+            print("you can not open this file and show these value please check a file with name post_file.csv "
+                  "is exists and what happened!! ")
 
-    @staticmethod
-    def like(user_log, person):
+    def like(self, person, id):
         count_like = 0
-        print('If you want to like post select 1 else select 2:')
-        select = input('Enter your select:')
-        if select == '1':
+        try:
             add_like = pd.read_csv('post_file.csv')
             location = 0
-            module_show_file.show_post_file(person)
-            id = input('Enter id of post:')
             with open("post_file.csv", 'r') as post_file:
                 reader = csv.DictReader(post_file)
                 for row in reader:
@@ -171,26 +162,25 @@ class Post:
                         count_like += 1
                         likes = count_like
                         print("You liked post.")
-                        add_like.loc[location, 'user_log'] = user_log
+                        add_like.loc[location, 'user_log'] = self.user_name
                         add_like.loc[location, 'like'] = likes
                         add_like.to_csv('post_file.csv', index=False)
                     location += 1
+        except Exception:
+            print("you can not open this file and add like please check a file with name post_file.csv "
+                  "is exists and what happened!! ")
 
-        else:
-            print('you dont like post!')
-
-    @staticmethod
-    def access_post(user_log, person):
-        print('Add comment: select 1 >>>>>>>>')
-        print('Add like: select 2 >>>>>>>>>>')
-        select = input('Enter select:')
-        if select == '1':
-            print(">>>> add comment")
-            Post.add_comment(user_log, person)
-        elif select == '2':
-            print(">>>> add like")
-            Post.like(user_log, person)
-        else:
+    def access_post(self, person, select, id, new_comments):
+        try:
+            if select == '1':
+                print(">>>> add comment")
+                Post.add_comment(self.user_name, person, id, new_comments)
+            elif select == '2':
+                print(">>>> add like")
+                Post.like(self.user_name, person, id)
+            else:
+                print('you dont add comment or liked the post!')
+        except Exception:
             print('you dont add comment or liked the post!')
 
 
