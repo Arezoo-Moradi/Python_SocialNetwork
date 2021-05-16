@@ -32,9 +32,7 @@ def access_owninfo(user):
                 user.post = Post.change_post(user, new_txt, id)
             elif choose == "3":
                 print('>>>>>>>>>>>>>Deleted a post')
-                print('////////////////////////')
                 module_show_file.show_post_file(user.user_name)
-                print('////////////////////////')
                 print('which post do you want to deleted? please select the id of post?')
                 id = input("Enter the id of post:")
                 user.post = Post.delete_post(user, id)
@@ -57,41 +55,49 @@ def access_owninfo(user):
                 break
         elif choice == '3':
             print('>>>>>>>>>>>>>>>Access to profile')
-            print('1-creat_profile 2- Edit_profile 3- show_profile 4-exit')
-            print('please choose a number between 1,2,3,4')
+            print('1-creat_profile 2- show_profile 3-exit')
+            print('please choose a number between 1,2,3')
             choise3 = input('Enter the number:')
             if choise3 == '1':
-                print('>>>>>>>>>>>>>>>creat a Profile')
-                user.profile = Profile.creat_profile(user.user_name)
-            elif choise3 == '2':
-                print('>>>>>>>>>>>>>>>Edit profile')
-                print('select Edited 1-email 2-phone 3-bio 4- Edited all value(Email/phone/bio)')
-                select = input('Enter your select:')
-                if select == '1':
-                    email = input('Enter new email:')
-                    user.profile = Profile.edit_profile(user, select, email, None, None)
-                elif select == '2':
-                    phone = input('Enter new phone:')
-                    user.profile = Profile.edit_profile(user, select, None, phone, None)
-                elif select == '3':
-                    bio = input('Enter new bio:')
-                    user.profile = Profile.edit_profile(user, select, None, None, bio)
-                elif select == '4':
-                    email = input('Enter new email:')
-                    phone = input('Enter new phone:')
-                    bio = input('Enter new bio:')
-                    user.profile = Profile.edit_profile(user, select, email, phone, bio)
-                else:
-                    print('your select is wrong!')
+                check = Profile.check_profile(user.user_name)
+                if check:
+                    print('>>>>>>>>>>>>>>>creat a Profile')
+                    user.profile = Profile.creat_profile(user.user_name)
+                    print('Edited profile that created 1-edit 2-no edit')
+                    choise = input('enter your choise:')
+                    if choise == '1':
+                        print('>>>>>>>>>>>>>>>Edit profile')
+                        print('select Edited 1-email 2-phone 3-bio 4- Exit')
+                        while True:
+                            select = input('Enter your select:')
+                            if select == '1':
+                                email = input('Enter new email:')
+                                user.profile = Profile.edit_profile(user.profile, select, email, None, None)
+                                continue
+                            elif select == '2':
+                                phone = input('Enter new phone:')
+                                user.profile = Profile.edit_profile(user.profile, select, new_phone=phone, new_email=None, new_bio=None)
+                                continue
+                            elif select == '3':
+                                bio = input('Enter new bio:')
+                                user.profile = Profile.edit_profile(user.profile, select,  new_bio=bio, new_phone=None, new_email=None,)
+                                continue
+                            elif select == '4':
+                                break
+                            else:
+                                print('your select is wrong!')
 
-            elif choise3 == '3':
+                    elif choise == '2':
+                        break
+                else:
+                    print(f'This profile is exists for the ---->{user.user_name}! '
+                          f'you can not creat again profile for his/her!')
+            elif choise3 == '2':
                 print('>>>>>>>>>>>>>>>show profile')
                 user.profile = Profile.show_my_profile(user)
-            elif choise3 == '4':
+            elif choise3 == '3':
                 break
         elif choice == '4':
-            # user = User(user_name, password, None, True)
-            # User.change_password(user)
             user.change_password()
 
         elif choice == '5':

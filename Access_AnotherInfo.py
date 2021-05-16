@@ -1,4 +1,5 @@
 import module_show_file
+import post
 from User import User
 from Profile import Profile
 from post import Post
@@ -32,17 +33,13 @@ def access_anotherinfo(user):
                     module_show_file.show_post_file(person)
                     id = input('Enter id of post:')
                     new_comments = input("Please enter the comment:")
-                    user.post = Post.access_post(user.user_name, person, select, id, new_comments)
+                    obj_person = Post.obj_post(person, id)
+                    user.post = obj_person.access_post(user.user_name, person, select, id, new_comments)
                 elif select == '2':
-                    print('If you want to like post select 1 else select 2:')
-                    select1 = input('Enter your select:')
-                    if select1 == '1':
-                        module_show_file.show_post_file(person)
-                        id = input('Enter id of post:')
-                        user.post = Post.access_post(user.user_name, person,select, id, None)
-                    else:
-                        print('you dont like post!')
-
+                    module_show_file.show_post_file(person)
+                    id = input('Enter id of post:')
+                    obj_person = Post.obj_post(person, id)
+                    user.post = obj_person.access_post(user.user_name, person, select, id)
             else:
                 break
         elif select == '2':

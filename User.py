@@ -2,6 +2,8 @@ import csv
 import basehash
 import pandas as pd
 from pathlib import Path
+
+import log
 import module_show_file
 
 class User:
@@ -15,7 +17,7 @@ class User:
     friends_list = []
     hash_fn = basehash.base36()
 
-    '''In this function: initialize attributes'''
+    '''In this function, initialize attributes'''
     def __init__(self, user_name, password, friends, login_flg):
         '''
         :param user_name: Name of user
@@ -30,16 +32,16 @@ class User:
         self.profile = None
         self.post = None
 
-
     '''In this function, you can register and go to your page'''
     @classmethod
-    def register(cls, user_name, password, confirm ):
+    def register(cls, user_name, password, confirm):
         count = 0
         with open("User_Information.csv") as f_obj:
             reader = csv.reader(f_obj)
             for line in reader:
                 if user_name in line:
                     print('This user name register before!')
+                    log.warning_logger.error(f'{user_name} register before!!')
                     break
                 else:
                     if password == confirm:
@@ -55,6 +57,7 @@ class User:
                         confirm = input("verify password again:")
                         if count == 2:
                             print('try againes after 10 minute your access is lucked')
+                            log.warning_logger.error(f'{user_name} enters 3 times wrong password!')
                         if password == confirm:
                             break
                         count += 1
@@ -71,23 +74,6 @@ class User:
                     cls.user_list.append(user)
                     return user
 
-    ''' In this function,you can log in to your page'''
-    @staticmethod
-    def login(user_name, password):
-        '''check the user name or password is exist'''
-        with open("User_Information.csv", 'r') as user_file:
-            reader = csv.reader(user_file)
-            for row in reader:
-                if user_name == row[0]:
-                    if password == User.hash_fn.unhash(row[1]):
-                        User.login_flg = True
-                        print("welcome to your page...")
-                        return True
-                        break
-                    else:
-                        User.login_flg = False
-                        return False
-
     '''In this function,you can log out to your page'''
     def logout(self):
         try:
@@ -99,27 +85,32 @@ class User:
 
     '''In this function,changed your password'''
     def change_password(self):
-        change = pd.read_csv('User_Information.csv')
-        location = 0
-        new_password = input("Please enter new password:")
-        hash_old_pass = User.hash_fn.hash(self.password)
-        hash_new_pass = User.hash_fn.hash(new_password)
+        try:
+            change = pd.read_csv('User_Information.csv')
+            location = 0
+            new_password = input("Please enter new password:")
+            hash_old_pass = User.hash_fn.hash(self.password)
+            hash_new_pass = User.hash_fn.hash(new_password)
 
-        with open("User_Information.csv", 'r') as user_file:
-            reader = csv.DictReader(user_file)
-            for row in reader:
-                if row['user_name'] == self.user_name and row['password'] == hash_old_pass:
-                    self.password = hash_new_pass
-                    print("Your password is changed.")
-                    change.loc[location, 'password'] = hash_new_pass
-                    change.to_csv('User_Information.csv', index=False)
-                location += 1
+            with open("User_Information.csv", 'r') as user_file:
+                reader = csv.DictReader(user_file)
+                for row in reader:
+                    if row['user_name'] == self.user_name and row['password'] == hash_old_pass:
+                        self.password = hash_new_pass
+                        print("Your password is changed.")
+                        change.loc[location, 'password'] = hash_new_pass
+                        change.to_csv('User_Information.csv', index=False)
+                    location += 1
+        except Exception:
+            print("you can not open this file and changed these value please check a file with name "
+                  "User_Information.csv is exists and what happened!! ")
 
     '''In this function, you can follow your friends '''
     def following(self, user_name):
         try:
             obj_user_name = next(element for element in self.user_list if element.user_name == user_name)
             self.friends_list.append(obj_user_name)
+            log.info_logger.info(f'The user name:{user_name} is following.')
             with open('following_list.csv', 'a', newline='') as following_data:
                 fields_name = ['user_name']
                 csv_writer = csv.DictWriter(following_data, fieldnames=fields_name)
@@ -128,24 +119,31 @@ class User:
                 csv_writer.writerow({'user_name': user_name})
         except:
             print('You have no desire to following anyone')
+            log.warning_logger.warning(f'{user_name} has no desire to following anyone!')
 
         return self.friends_list
 
     '''In this function, you can unfollow your friends '''
     def unfollow(self, person):
-        lines = list()
-        with open('following_list.csv', 'r') as readFile:
-            reader = csv.reader(readFile)
-            for row in reader:
-                lines.append(row)
-                for field in row:
-                    if field == person:
-                        lines.remove(row)
-                        print('unfollow your friend!')
-        with open('following_list.csv', 'w') as writeFile:
-            writer = csv.writer(writeFile)
-            writer.writerows(lines)
+        try:
+            lines = list()
+            with open('following_list.csv', 'r') as readFile:
+                reader = csv.reader(readFile)
+                for row in reader:
+                    lines.append(row)
+                    for field in row:
+                        if field == person:
+                            lines.remove(row)
+                            print('unfollow your friend!')
+            with open('following_list.csv', 'w') as writeFile:
+                writer = csv.writer(writeFile)
+                writer.writerows(lines)
 
+        except Exception:
+            print("you can not open this file and remove these value please check a file with name "
+                  "following_list.csv is exists and what happened!! ")
+
+    '''In this function, you can access to following and unfollow your friend'''
     def menu_following(self):
         print("Suggested list of people you can follow: ")
         print('user_name:')
@@ -168,7 +166,38 @@ class User:
                 break
             continue
 
+    ''' In this function,you can log in to your page'''
+    @staticmethod
+    def login(user_name, password):
+        '''check the user name or password is exist'''
+        with open("User_Information.csv", 'r') as user_file:
+            reader = csv.reader(user_file)
+            for row in reader:
+                if user_name == row[0]:
+                    if password == User.hash_fn.unhash(row[1]):
+                        User.login_flg = True
+                        print("welcome to your page...")
+                        return True
+                        break
+                    else:
+                        User.login_flg = False
+                        return False
+
+    '''In this function, you can show following'''
     @staticmethod
     def show_following():
         module_show_file.following_list()
+
+    '''In this function, you can check the user name is register before and exists in file User_Information.csv'''
+    @staticmethod
+    def check_user(user_name):
+        with open("User_Information.csv", 'r') as user_file:
+            reader = csv.DictReader(user_file)
+            for row in reader:
+                if row['user_name'] == user_name:
+                    return 0
+            else:
+                return 1
+
+
 

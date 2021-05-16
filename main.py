@@ -1,6 +1,7 @@
 '''
                                     created by: Arezoo Moradi
 '''
+import log
 import module_show_file
 from User import User
 from Profile import Profile
@@ -27,9 +28,15 @@ while True:
         if choise1 == '1':
             print('>>>>>>>>>>>>>>>>>>>>Register')
             user_name = input("Enter User Name:").lower()
-            password = input("Enter Password:").lower()
-            confirm = input("Enter Password again:").lower()
-            person = User.register(user_name, password, confirm)
+            check = User.check_user(user_name)
+            if check:
+                password = input("Enter Password:").lower()
+                confirm = input("Enter Password again:").lower()
+                person = User.register(user_name, password, confirm)
+                log.info_logger.info(f"user with user_name: {user_name} register.")
+            else:
+                print(f'{user_name} ---->>>> is register before!')
+
         elif choise1 == '2':
             print('>>>>>>>>>>>>>>>>>>>>>Log in')
             user_name = input('please enter your user_name:')
